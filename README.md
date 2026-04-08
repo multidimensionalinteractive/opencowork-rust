@@ -34,6 +34,169 @@
 
 **A high-performance Rust refactor of [OpenWork](https://github.com/different-ai/openwork)** — the open-source Claude Cowork/Codex alternative.
 
+![OpenCoWork UX Preview](screenshot-full.png)
+
+## 🚀 Installation Guide
+
+### Prerequisites
+
+```bash
+# Install Rust (required)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+
+# Install Bun (for frontend, optional)
+curl -fsSL https://bun.sh/install | bash
+```
+
+### Build from Source
+
+```bash
+git clone https://github.com/multidimensionalinteractive/opencowork-rust.git
+cd opencowork-rust
+
+# Build all crates (release mode for max performance)
+cargo build --release
+
+# Binaries are in target/release/
+ls target/release/opencowork-server
+ls target/release/opencowork-router
+```
+
+### Run the Server
+
+```bash
+# Start with a workspace
+./target/release/opencowork-server --workspace /path/to/your/project
+
+# With custom port and auth token
+./target/release/opencowork-server \
+  --workspace ~/my-project \
+  --port 8080 \
+  --host 127.0.0.1 \
+  --token my-secret-token
+
+# Auto-approve all file mutations (use with caution)
+./target/release/opencowork-server --workspace . --approval auto
+```
+
+### Run the Router (Telegram/Slack)
+
+```bash
+# Create router config
+cat > router.toml << 'EOF'
+[[telegram]]
+id = "main"
+token = "YOUR_BOT_TOKEN_FROM_BOTFATHER"
+
+[router]
+opencode_url = "http://localhost:9876"
+dedup_window_secs = 30
+EOF
+
+# Start router
+./target/release/opencowork-router --config router.toml
+```
+
+### Frontend Dev Server
+
+```bash
+cd apps/frontend
+bun install
+bun dev
+# Opens at http://localhost:3000, proxies API to :9876
+```
+
+## 🤖 Recommended LLMs (April 2026)
+
+> ⚠️ **LLM rankings change weekly.** Check [openrouter.ai/models](https://openrouter.ai/models) and [lmarena.ai](https://lmarena.ai) for current standings.
+
+### Best Value on OpenRouter
+
+| Model | Context | Price ($/1M tokens) | Best For |
+|-------|---------|-------------------|----------|
+| **Xiaomi MiMo-V2-Pro** | 1M | $1.00 | 🔥 Best overall quality, huge context |
+| **Xiaomi MiMo-V2-Flash** | 262K | $0.09 | ⚡ Fast & cheap, great for routine tasks |
+| **Xiaomi MiMo-V2-Omni** | 262K | $0.40 | 🖼️ Multimodal (vision + text) |
+| **MiniMax M2.7** | 205K | $0.30 | 🎯 Strong reasoning, good value |
+| **Qwen3.5-Flash** | 1M | $0.07 | 💰 Cheapest long-context option |
+| **Qwen3 Coder 480B** | 262K | $0.22 | 💻 Code-heavy workloads |
+| **Gemma 4 31B** | 262K | $0.14 | 🆓 Free tier available |
+| **Llama 4 Maverick** | 1M | $0.15 | 🦙 Meta's latest, long context |
+
+### Our Picks (Updated April 2026)
+
+1. **🥇 MiMo-V2-Pro** — Best bang for buck. 1M context, strong reasoning, $1/1M tokens. Use for complex multi-step tasks.
+
+2. **🥈 MiMo-V2-Flash** — Insane value at $0.09/1M. Use for quick queries, formatting, simple code gen. Pair with Pro for complex work.
+
+3. **🥉 MiniMax M2.7** — Underrated. Great at instruction following and structured output. $0.30/1M is very reasonable.
+
+### Local / Self-Hosted (Free, Private)
+
+For full privacy — run models locally with **llama.cpp**:
+
+```bash
+# Install llama.cpp
+git clone https://github.com/ggml-org/llama.cpp.git
+cd llama.cpp
+cmake -B build -DGGML_CUDA=ON  # GPU acceleration (NVIDIA)
+# cmake -B build -DGGML_METAL=ON  # Apple Silicon
+cmake --build build --config Release -j$(nproc)
+
+# Download a model (GGUF format)
+# Recommended models for local use:
+mkdir -p models
+
+# Uncensored Qwen 2.5 32B — great general purpose, no refusals
+wget https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-abliterated-GGUF/resolve/main/Qwen2.5-32B-Instruct-abliterated-Q4_K_M.gguf -P models/
+
+# Abliterated Gemma 4 27B — Google's model without safety filters
+wget https://huggingface.co/bartowski/gemma-4-27b-it-abliterated-GGUF/resolve/main/gemma-4-27b-it-abliterated-Q4_K_M.gguf -P models/
+
+# Hermes 3 Llama 3.1 70B — Nous Research, uncensored, very capable
+wget https://huggingface.co/NousResearch/Hermes-3-Llama-3.1-70B-GGUF/resolve/main/Hermes-3-Llama-3.1-70B.Q4_K_M.gguf -P models/
+
+# Run the server
+./build/bin/llama-server \
+  -m models/Qwen2.5-32B-Instruct-abliterated-Q4_K_M.gguf \
+  --host 127.0.0.1 \
+  --port 8080 \
+  -ngl 99 \           # Offload all layers to GPU
+  -c 32768 \           # Context length
+  --chat-template chatml
+
+# Now point OpenCoWork at your local model:
+# Set opencode_url to http://localhost:8080 in your config
+```
+
+### Uncensored / Abliterated Models
+
+These models have safety filters removed — use responsibly:
+
+| Model | Size | VRAM (Q4) | Notes |
+|-------|------|-----------|-------|
+| **Qwen2.5-32B-Instruct-abliterated** | 32B | ~20GB | Best general uncensored model |
+| **gemma-4-27b-it-abliterated** | 27B | ~18GB | Google architecture, no refusals |
+| **Hermes 3 Llama 3.1 70B** | 70B | ~40GB | Nous Research, fully uncensored |
+| **Llama 3.3 Euryale 70B** | 70B | ~40GB | Creative writing, no restrictions |
+
+> 💡 **Tip:** Use Q4_K_M quantization for best quality/size tradeoff. Q8_0 if you have the VRAM. IQ4_XS for tighter budgets.
+
+### GPU Requirements for Local Models
+
+```
+  ┌──────────────────┬──────────┬────────────────────┐
+  │ Model            │ VRAM     │ Recommended GPU    │
+  ├──────────────────┼──────────┼────────────────────┤
+  │ 7-8B (Q4)       │ ~5GB     │ RTX 3060 12GB      │
+  │ 13-14B (Q4)     │ ~9GB     │ RTX 3080 12GB      │
+  │ 27-32B (Q4)     │ ~18-20GB │ RTX 4080 Super 16GB│
+  │ 70B (Q4)        │ ~40GB    │ RTX 4090 24GB x2   │
+  │ 70B (Q4)        │ ~40GB    │ A100 80GB          │
+  └──────────────────┴──────────┴────────────────────┘
+```
+
 ## Why Rust?
 
 | Metric | TypeScript (Bun) | Rust (Axum) | Improvement |
