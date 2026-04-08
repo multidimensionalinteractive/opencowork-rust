@@ -1,0 +1,11 @@
+[package]
+name = "opencowork-delivery"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+rand = "0.8"
