@@ -1,0 +1,26 @@
+# OpenCoWork Rust — winget manifest
+# Submit to https://github.com/microsoft/winget-pkgs for publishing
+
+Id: MultidimensionalInteractive.OpenCoWork
+Version: 0.1.0
+Name: OpenCoWork
+Publisher: Multidimensional Interactive
+License: MIT
+LicenseUrl: https://github.com/multidimensionalinteractive/opencowork-rust/blob/main/LICENSE
+AppMoniker: opencowork
+Tags:
+  - rust
+  - ai
+  - llm
+  - claude-cowork
+  - coding-assistant
+  - local-ai
+Description: High-performance Rust refactor of OpenWork — the open-source Claude Cowork alternative. Runs local LLMs via llama.cpp, with Axum server and SolidJS frontend.
+Homepage: https://github.com/multidimensionalinteractive/opencowork-rust
+Installers:
+  - Architecture: x64
+    InstallerType: exe
+    InstallerUrl: https://github.com/multidimensionalinteractive/opencowork-rust/releases/latest/download/opencowork-installer.exe
+    InstallerSha256: PLACEHOLDER
+    Scope: user
+ManifestVersion: 1.4.0

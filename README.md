@@ -38,7 +38,28 @@
 
 ## 🚀 Installation Guide
 
-### Prerequisites
+### Windows (One-Click)
+
+```powershell
+# Download and run the installer
+irm https://raw.githubusercontent.com/multidimensionalinteractive/opencowork-rust/main/install.ps1 | iex
+
+# Or with GPU acceleration (NVIDIA)
+irm https://raw.githubusercontent.com/multidimensionalinteractive/opencowork-rust/main/install.ps1 | iex; install.ps1 -Cuda
+```
+
+The Windows installer automates:
+- ✅ Rust toolchain installation
+- ✅ OpenCoWork build from source
+- ✅ llama.cpp with CUDA acceleration (if `-Cuda` flag)
+- ✅ Model downloads (auto-selects based on your GPU VRAM)
+- ✅ Server/router config generation
+- ✅ Desktop shortcuts + Start menu
+- ✅ PATH setup
+
+Or download `install.bat` from this repo and double-click it.
+
+### Linux / macOS (Prerequisites)
 
 ```bash
 # Install Rust (required)
